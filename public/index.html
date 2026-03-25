@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AIAgent 管理系统</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🤖 AIAgent 管理系统</h1>
+      <p>操作 AIAgent 完成软件工程开发</p>
+    </header>
+
+    <div class="main-content">
+      <!-- 会话列表 -->
+      <aside class="sidebar">
+        <h2>会话列表</h2>
+        <button id="newSessionBtn" class="btn btn-primary">新建会话</button>
+        <ul id="sessionList" class="session-list"></ul>
+      </aside>
+
+      <!-- 聊天区域 -->
+      <main class="chat-area">
+        <div class="chat-header">
+          <h2 id="currentSessionTitle">选择或创建会话</h2>
+          <button id="startFlowBtn" class="btn btn-success" disabled>启动开发流程</button>
+        </div>
+
+        <div id="messagesContainer" class="messages-container">
+          <div class="welcome-message">
+            <p>👋 欢迎使用 AIAgent 管理系统！</p>
+            <p>请创建新会话或选择现有会话开始对话。</p>
+          </div>
+        </div>
+
+        <div class="input-area">
+          <textarea 
+            id="messageInput" 
+            placeholder="输入您的需求..." 
+            rows="3"
+            disabled
+          ></textarea>
+          <button id="sendBtn" class="btn btn-primary" disabled>发送</button>
+        </div>
+      </main>
+
+      <!-- 流程状态面板 -->
+      <aside class="flow-panel">
+        <h2>开发流程</h2>
+        <div id="flowStatus" class="flow-status">
+          <div class="flow-step" data-step="0">
+            <span class="step-number">0</span>
+            <span class="step-label">等待开始</span>
+          </div>
+          <div class="flow-step" data-step="1">
+            <span class="step-number">1</span>
+            <span class="step-label">需求记录</span>
+          </div>
+          <div class="flow-step" data-step="2">
+            <span class="step-number">2</span>
+            <span class="step-label">需求澄清</span>
+          </div>
+          <div class="flow-step" data-step="3">
+            <span class="step-number">3</span>
+            <span class="step-label">设计输出</span>
+          </div>
+          <div class="flow-step" data-step="4">
+            <span class="step-number">4</span>
+            <span class="step-label">代码开发</span>
+          </div>
+          <div class="flow-step" data-step="5">
+            <span class="step-number">5</span>
+            <span class="step-label">代码审查</span>
+          </div>
+          <div class="flow-step" data-step="6">
+            <span class="step-number">6</span>
+            <span class="step-label">测试验证</span>
+          </div>
+          <div class="flow-step" data-step="7">
+            <span class="step-number">7</span>
+            <span class="step-label">Git 提交</span>
+          </div>
+        </div>
+        <div id="flowLog" class="flow-log"></div>
+      </aside>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
