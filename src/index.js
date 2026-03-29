@@ -33,6 +33,7 @@ function parseArgs() {
  */
 async function loadModule(moduleName) {
     const searchPaths = [
+        join(__dirname, 'commands', `${moduleName}.js`),
         join(__dirname, 'services', `${moduleName}.js`),
         join(__dirname, 'utils', `${moduleName}.js`),
         join(__dirname, `${moduleName}.js`)
