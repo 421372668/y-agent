@@ -1,8 +1,9 @@
 {
-  "name": "y-agent",
+  "name": "yxkj-cli",
   "version": "1.0.0",
-  "description": "AIAgent 管理系统 - 操作其他 AIAgent 完成软件工程开发",
+  "description": "一个AI的命令行工具",
   "main": "server.js",
+  "type": "module",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
