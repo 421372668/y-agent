@@ -92,7 +92,11 @@ async function main() {
         const module = await loadModule(moduleName);
         const result = await executeMethod(module, moduleName, methodName, methodArgs);
         if (result !== undefined) {
-            console.log(result);
+            if (typeof result === 'object') {
+                console.log(JSON.stringify(result, null, 2));
+            } else {
+                console.log(result);
+            }
         }
     } catch (error) {
         console.error(`错误: ${error.message}`);
