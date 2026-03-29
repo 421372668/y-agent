@@ -151,11 +151,8 @@ export function setConfig(key, value) {
       encoding: 'utf8',
       mode: 0o644
     });
-
-    console.log(`配置 ${key} 设置成功`);
-    return true;
+    return {status: true, message:`配置 ${key} 设置成功`};
   } catch (error) {
-    console.error(`设置配置 ${key} 失败:`, error.message);
-    return false;
+    return {status: false, message:`设置配置 ${key} 失败:${error.message}`};
   }
 }

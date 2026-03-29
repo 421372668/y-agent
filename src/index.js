@@ -57,10 +57,20 @@ async function loadModule(moduleName) {
  * @returns {Promise<any>}
  */
 async function executeMethod(module, moduleName, methodName, methodArgs) {
-    if (typeof module[methodName] !== 'function') {
+    let finnalMethod = methodName;
+    if(typeof module[methodName] !== 'function'){
+        finnalMethod = methodName.replace(/-/g, '');
+    }
+    if(typeof module[methodName] !== 'function'){
+        finnalMethod = methodName.replace(/-\w/g, (part) =>{
+            return part.slice(1).toUpperCase();
+        });
+    }
+
+    if (typeof module[finnalMethod] !== 'function') {
         throw new Error(`模块 ${moduleName} 中不存在方法: ${methodName}`);
     }
-    return await module[methodName](...methodArgs);
+    return await module[finnalMethod](...methodArgs);
 }
 
 /**
