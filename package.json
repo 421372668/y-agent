@@ -4,6 +4,9 @@
   "description": "一个AI的命令行工具",
   "main": "server.js",
   "type": "module",
+  "bin": {
+    "yxkj": "./bin/yxkj.js"
+  },
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
