@@ -394,9 +394,14 @@ export class TeamManager {
     for (const teamMember of teamMembers) {
       const memberName = teamMember.getName();
       const memberType = teamMember.getType();
-      const member = new Member(memberName, memberType, null, frequency);
+      // 创建成员时传入 team 实例，task 为空时会自动加载角色任务
+      const member = new Member(memberName, memberType, null, frequency, team);
+      
+      // 初始化成员（加载角色任务）
+      await member.init();
 
-      // 设置任务函数 - 执行前检查团队状态（从配置文件读取）
+      // 保存原始角色任务，设置包装函数 - 执行前检查团队状态
+      const originalTask = member._task;
       member.setTask(async () => {
         try {
           const teamStatus = self._getTeamStatusConfig(teamName);
@@ -422,13 +427,17 @@ export class TeamManager {
           
           database.updateMemberStatus(memberName, memberType, 'working', member._executionCount);
           database.addWorkLog(memberName, memberType, `execute_task_${member._executionCount}`, JSON.stringify({ time: new Date().toISOString(), executionCount: member._executionCount }));
-          console.log(`[${new Date().toISOString()}] 团队 "${teamName}" 成员 "${memberName}" 执行任务 #${member._executionCount}`);
+          
+          // 调用原始角色任务（如果存在）
+          if (originalTask) {
+            await originalTask();
+          }
         } catch (error) {
           console.error(`成员 "${memberName}" 任务执行失败:`, error.message);
         }
       });
 
-      member.run();
+      await member.run();
       runtimeInfo.members.set(memberName, member);
       database.updateMemberStatus(memberName, memberType, 'running', 0);
       database.addWorkLog(memberName, memberType, 'member_started', `成员启动，执行频率: ${frequency}ms`);

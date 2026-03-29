@@ -12,11 +12,37 @@
  * - setFrequency(frequency)：设置成员的执行频率。
  */
 
+import { fileURLToPath, pathToFileURL } from 'url';
+import { dirname, join } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 // 支持的成员类型
 const MEMBER_TYPES = ['pm', 'developer', 'tester', 'designer', 'reviewer', 'other'];
 
 // 默认执行频率（毫秒）
 const DEFAULT_FREQUENCY = 60000; // 1分钟
+
+/**
+ * 根据成员类型加载角色任务函数
+ * @param {string} type 成员类型
+ * @returns {Function|null} 任务函数
+ */
+async function loadRoleTask(type) {
+  const rolePath = join(__dirname, '..', 'role', `${type}.js`);
+  try {
+    const module = await import(pathToFileURL(rolePath).href);
+    if (typeof module.run === 'function') {
+      return module.run;
+    }
+    console.warn(`角色文件 "${type}.js" 中没有导出 run 函数`);
+    return null;
+  } catch (error) {
+    console.warn(`加载角色文件 "${type}.js" 失败: ${error.message}`);
+    return null;
+  }
+}
 
 /**
  * 成员类
@@ -29,16 +55,51 @@ export class Member {
    * @param {string} type 成员类型
    * @param {Function} task 任务函数
    * @param {number} frequency 执行频率（毫秒）
+   * @param {object} team 团队实例（可选）
    */
-  constructor(name, type = 'developer', task = null, frequency = DEFAULT_FREQUENCY) {
+  constructor(name, type = 'developer', task = null, frequency = DEFAULT_FREQUENCY, team = null) {
     this._name = name;
     this._type = type;
     this._task = task;
     this._frequency = frequency;
+    this._team = team;
     this._running = false;
     this._timerId = null;
     this._lastExecutionTime = null;
     this._executionCount = 0;
+    this._roleLoaded = false;
+  }
+
+  /**
+   * 异步初始化成员（加载角色任务）
+   */
+  async init() {
+    if (!this._task && !this._roleLoaded) {
+      const roleTask = await loadRoleTask(this._type);
+      if (roleTask) {
+        this._task = async () => {
+          await roleTask(this._team, this);
+        };
+      }
+      this._roleLoaded = true;
+    }
+    return this;
+  }
+
+  /**
+   * 设置团队实例
+   * @param {object} team 团队实例
+   */
+  setTeam(team) {
+    this._team = team;
+  }
+
+  /**
+   * 获取团队实例
+   * @returns {object} 团队实例
+   */
+  getTeam() {
+    return this._team;
   }
 
   /**
@@ -112,16 +173,21 @@ export class Member {
   /**
    * 运行成员
    * 开始周期性执行任务函数
-   * @returns {boolean} 是否成功启动
+   * @returns {Promise<boolean>} 是否成功启动
    */
-  run() {
+  async run() {
     if (this._running) {
       console.log(`成员 "${this._name}" 已在运行中`);
       return false;
     }
 
+    // 如果没有任务函数，尝试加载角色任务
     if (!this._task) {
-      console.log(`成员 "${this._name}" 没有设置任务函数`);
+      await this.init();
+    }
+
+    if (!this._task) {
+      console.log(`成员 "${this._name}" 没有设置任务函数且无法加载角色任务`);
       return false;
     }
 
