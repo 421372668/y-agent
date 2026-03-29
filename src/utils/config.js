@@ -156,3 +156,19 @@ export function setConfig(key, value) {
     return {status: false, message:`设置配置 ${key} 失败:${error.message}`};
   }
 }
+
+
+export function help() {
+  console.log('Usage: yxkj config <command> [options]');
+  console.log('Commands: initConfig, getConfig, setConfig config help');
+}
+
+export function config(...args){
+  if(args.length === 0){
+    return help();
+  }
+  if(args.length === 1){
+    return getConfig(args[0]);
+  }
+  return setConfig(args[0], args[1]);
+}

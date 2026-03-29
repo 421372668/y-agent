@@ -57,12 +57,20 @@ async function loadModule(moduleName) {
  * @returns {Promise<any>}
  */
 async function executeMethod(module, moduleName, methodName, methodArgs) {
-    let finnalMethod = methodName;
-    if(typeof module[methodName] !== 'function'){
+    let rawMethodName = methodName;
+    if(methodName.startsWith('-') ){
+        rawMethodName = methodName.substring(1);
+    }
+    if(methodName.startsWith('--')){
+        rawMethodName = methodName.substring(2);
+    }
+
+    let finnalMethod = rawMethodName;
+    if(typeof module[finnalMethod] !== 'function'){
         finnalMethod = methodName.replace(/-/g, '');
     }
-    if(typeof module[methodName] !== 'function'){
-        finnalMethod = methodName.replace(/-\w/g, (part) =>{
+    if(typeof module[finnalMethod] !== 'function'){
+        finnalMethod = rawMethodName.replace(/-\w/g, (part) =>{
             return part.slice(1).toUpperCase();
         });
     }
