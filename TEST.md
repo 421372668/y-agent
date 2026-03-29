@@ -23,7 +23,7 @@ script/yxkj config get-config 'test'
 
 ```bash
 # 创建团队
-node src/index.js team create myteam /path/to/workspace "我的团队"
+node src/index.js team create myteam ./workspace/myteam "我的团队"
 
 # 列出所有团队
 node src/index.js team list
@@ -39,4 +39,10 @@ node src/index.js team update-team-member-role myteam zhangsan pm
 
 # 删除团队
 node src/index.js team delete myteam
+
+# 开启团队
+node src/index.js team start myteam
+
+# 停止团队
+node src/index.js team stop myteam
 ```
