@@ -54,3 +54,9 @@ yxkj members [team-name] '[{"type":"pm"}]'
 ```bash
 yxkj members [team-name] -d -n [member1-name] [member1-name] -t [member-type]
 ```
+
+## 3. OpenCode
+
+```bash
+yxkj opencode run ./workspace/myteam '创建README.md文件，并写入“test”'
+```

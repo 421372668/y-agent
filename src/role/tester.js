@@ -1,6 +1,8 @@
+import { executeTodo } from './other.js';
+
 /**
  * Tester（测试人员）角色任务
- * @param {object} runtimeInfo - 运行时信息（包含 team, database, members, startTime, frequency, teamName）
+ * @param {object} runtimeInfo - 运行时信息
  * @param {object} member - 成员实例
  */
 export async function run(runtimeInfo, member) {
@@ -10,16 +12,72 @@ export async function run(runtimeInfo, member) {
   
   console.log(`[${now}] Tester "${memberName}" 执行测试任务 #${executionCount}`);
   
-  // Tester 可以执行的测试任务示例：
-  // 1. 执行测试用例
-  // 2. 回归测试
-  // 3. 性能测试
-  // 4. 报告 Bug
-  
-  if (runtimeInfo && runtimeInfo.team) {
-    const teamName = runtimeInfo.team.getName ? runtimeInfo.team.getName() : runtimeInfo.teamName;
-    console.log(`[${now}] Tester "${memberName}" 正在为团队 "${teamName}" 执行测试`);
+  if (!runtimeInfo || !runtimeInfo.database) {
+    console.warn(`[${now}] Tester "${memberName}" 无法访问数据库`);
+    return;
   }
+  
+  const database = runtimeInfo.database;
+  const teamName = runtimeInfo.teamName || 'unknown';
+  
+  // 查询自己的待办
+  const myTodos = database.getTodos(memberName, 'pending');
+  
+  if (myTodos.length === 0) {
+    console.log(`[${now}] Tester "${memberName}" 没有待处理的待办`);
+    return;
+  }
+  
+  // 执行第一个待办
+  const todo = myTodos[0];
+  const result = await executeTodo(runtimeInfo, member, todo);
+  
+  // 模拟测试结果（随机通过或不通过）
+  const passed = Math.random() > 0.3; // 70% 通过率
+  const developerName = `${teamName}_developer`;
+  
+  // 无论通过与否，都创建 developer 的待办
+  let newTodoTitle, newTodoDesc;
+  
+  if (passed) {
+    newTodoTitle = `测试通过: ${todo.title}`;
+    newTodoDesc = `测试通过，可以进行下一步: ${todo.description}`;
+    console.log(`[${now}] Tester "${memberName}" 测试通过: "${todo.title}"`);
+  } else {
+    newTodoTitle = `测试不通过: ${todo.title}`;
+    const reasons = [
+      '功能未按预期工作',
+      '存在边界条件问题',
+      '性能不达标',
+      '存在安全漏洞',
+      '兼容性问题'
+    ];
+    const reason = reasons[Math.floor(Math.random() * reasons.length)];
+    newTodoDesc = `测试不通过，原因: ${reason}。原待办: ${todo.description}`;
+    console.log(`[${now}] Tester "${memberName}" 测试不通过: "${todo.title}"，原因: ${reason}`);
+  }
+  
+  database.addTodo(
+    developerName,
+    'developer',
+    newTodoTitle,
+    newTodoDesc,
+    todo.priority || 2
+  );
+  
+  console.log(`[${now}] Tester "${memberName}" 创建待办: "${newTodoTitle}" 分配给 ${developerName}`);
+  
+  database.addWorkLog(
+    memberName,
+    'tester',
+    passed ? 'test_passed' : 'test_failed',
+    JSON.stringify({ 
+      title: newTodoTitle, 
+      assignee: developerName, 
+      passed,
+      fromTodo: todo.id 
+    })
+  );
 }
 
 export default { run };

@@ -46,3 +46,10 @@ node src/index.js team start myteam
 # 停止团队
 node src/index.js team stop myteam
 ```
+
+# 3. OpenCode
+
+
+```bash
+script/yxkj opencode run ./workspace/myteam '创建README.md文件，并写入“test”'
+```
