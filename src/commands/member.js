@@ -55,14 +55,14 @@ export class Member {
    * @param {string} type 成员类型
    * @param {Function} task 任务函数
    * @param {number} frequency 执行频率（毫秒）
-   * @param {object} team 团队实例（可选）
+   * @param {object} runtimeInfo 运行时信息（可选）
    */
-  constructor(name, type = 'developer', task = null, frequency = DEFAULT_FREQUENCY, team = null) {
+  constructor(name, type = 'developer', task = null, frequency = DEFAULT_FREQUENCY, runtimeInfo = null) {
     this._name = name;
     this._type = type;
     this._task = task;
     this._frequency = frequency;
-    this._team = team;
+    this._runtimeInfo = runtimeInfo;
     this._running = false;
     this._timerId = null;
     this._lastExecutionTime = null;
@@ -78,7 +78,7 @@ export class Member {
       const roleTask = await loadRoleTask(this._type);
       if (roleTask) {
         this._task = async () => {
-          await roleTask(this._team, this);
+          await roleTask(this._runtimeInfo, this);
         };
       }
       this._roleLoaded = true;
@@ -87,19 +87,19 @@ export class Member {
   }
 
   /**
-   * 设置团队实例
-   * @param {object} team 团队实例
+   * 设置运行时信息
+   * @param {object} runtimeInfo 运行时信息
    */
-  setTeam(team) {
-    this._team = team;
+  setRuntimeInfo(runtimeInfo) {
+    this._runtimeInfo = runtimeInfo;
   }
 
   /**
-   * 获取团队实例
-   * @returns {object} 团队实例
+   * 获取运行时信息
+   * @returns {object} 运行时信息
    */
-  getTeam() {
-    return this._team;
+  getRuntimeInfo() {
+    return this._runtimeInfo;
   }
 
   /**
@@ -193,15 +193,10 @@ export class Member {
 
     this._running = true;
     
+    console.log(`成员 "${this._name}" 开始运行，执行频率: ${this._frequency}ms`);
+
     // 立即执行一次
     this._executeTask();
-    
-    // 设置定时器
-    this._timerId = setInterval(() => {
-      this._executeTask();
-    }, this._frequency);
-
-    console.log(`成员 "${this._name}" 开始运行，执行频率: ${this._frequency}ms`);
     return true;
   }
 
@@ -217,6 +212,11 @@ export class Member {
     } catch (error) {
       console.error(`成员 "${this._name}" 执行任务失败:`, error.message);
     }
+
+    // 使用 setTimeout 代替 setInterval 以避免任务重叠和延迟
+    this._timerId = setTimeout(() => {
+      this._executeTask();
+    }, this._frequency);
   }
 
   /**
@@ -230,7 +230,7 @@ export class Member {
     }
 
     if (this._timerId) {
-      clearInterval(this._timerId);
+      clearTimeout(this._timerId);
       this._timerId = null;
     }
 

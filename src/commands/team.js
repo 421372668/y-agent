@@ -394,8 +394,8 @@ export class TeamManager {
     for (const teamMember of teamMembers) {
       const memberName = teamMember.getName();
       const memberType = teamMember.getType();
-      // 创建成员时传入 team 实例，task 为空时会自动加载角色任务
-      const member = new Member(memberName, memberType, null, frequency, team);
+      // 创建成员时传入 runtimeInfo，task 为空时会自动加载角色任务
+      const member = new Member(memberName, memberType, null, frequency, runtimeInfo);
       
       // 初始化成员（加载角色任务）
       await member.init();

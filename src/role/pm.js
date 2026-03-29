@@ -1,9 +1,9 @@
 /**
  * PM（项目经理）角色任务
- * @param {object} team - 团队实例
+ * @param {object} runtimeInfo - 运行时信息（包含 team, database, members, startTime, frequency, teamName）
  * @param {object} member - 成员实例
  */
-export async function run(team, member) {
+export async function run(runtimeInfo, member) {
   const now = new Date().toISOString();
   const memberName = member.getName();
   const executionCount = member._executionCount;
@@ -16,9 +16,9 @@ export async function run(team, member) {
   // 3. 协调资源
   // 4. 更新项目状态
   
-  if (team) {
+  if (runtimeInfo && runtimeInfo.team) {
     // 可以访问团队信息
-    const teamName = team.getName ? team.getName() : 'unknown';
+    const teamName = runtimeInfo.team.getName ? runtimeInfo.team.getName() : runtimeInfo.teamName;
     console.log(`[${now}] PM "${memberName}" 正在管理团队 "${teamName}"`);
   }
 }
